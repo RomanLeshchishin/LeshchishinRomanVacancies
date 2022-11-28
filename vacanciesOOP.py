@@ -98,7 +98,7 @@ class InputConnect:
         return areaDic
 
     @staticmethod
-    def create_vacancies_dictionary(vacList, vacsDic):
+    def create_vacancies_dic(vacList, vacsDic):
         for vac in vacList:
             if vac.area_name in vacsDic:
                 vacsDic[vac.area_name] += 1
@@ -134,7 +134,7 @@ class InputConnect:
         salaryCities = \
             {item[0]: int(sum(item[1]) / len(item[1])) for item in areaNameList[0: min(len(areaNameList), 10)]}
         vacanciesDic = {}
-        vacanciesDic = InputConnect.create_vacancies_dictionary(vacList, vacanciesDic)
+        vacanciesDic = InputConnect.create_vacancies_dic(vacList, vacanciesDic)
         vacanciesCounts = {x: round(y / len(vacList), 4) for x, y in vacanciesDic.items()}
         vacanciesCounts = {k: val for k, val in vacanciesCounts.items() if val >= 0.01}
         vacanciesCities = dict(sorted(vacanciesCounts.items(), key=lambda item: item[1], reverse=True))
