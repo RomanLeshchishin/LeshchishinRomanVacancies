@@ -1,11 +1,138 @@
-import csv
-import datetime as DT
-import re
 import openpyxl
 import matplotlib.pyplot as plt
 import numpy as np
 from openpyxl.styles import Font, Border, Side
 from openpyxl.styles.numbers import FORMAT_PERCENTAGE_00
+from jinja2 import Environment, FileSystemLoader
+import pdfkit
+import csv
+import re
+import datetime as DT
+from prettytable import PrettyTable
+
+
+dictionary = {
+    'name': 'Название',
+    'description': 'Описание',
+    'key_skills': 'Навыки',
+    'experience_id': 'Опыт работы',
+    'premium': 'Премиум-вакансия',
+    'employer_name': 'Компания',
+    'salary_from': 'Оклад',
+    'salary_to': 'Верхняя граница вилки оклада',
+    'salary_gross': 'Оклад указан до вычета налогов',
+    'salary_currency': 'Идентификатор валюты оклада',
+    'area_name': 'Название региона',
+    'published_at': 'Дата публикации вакансии',
+    "noExperience": "Нет опыта",
+    "between1And3": "От 1 года до 3 лет",
+    "between3And6": "От 3 до 6 лет",
+    "moreThan6": "Более 6 лет",
+    "AZN": "Манаты",
+    "BYR": "Белорусские рубли",
+    "EUR": "Евро",
+    "GEL": "Грузинский лари",
+    "KGS": "Киргизский сом",
+    "KZT": "Тенге",
+    "RUR": "Рубли",
+    "UAH": "Гривны",
+    "USD": "Доллары",
+    "UZS": "Узбекский сум"
+}
+
+
+def clean_string(text):
+    text = re.sub(r'<[^>]*>', '', text).replace('\r\n', ' ').strip()
+    return re.sub(' +', ' ', text)
+
+
+def csv_reader(file_name):
+    file_csv = csv.reader(open(file_name, encoding='utf_8_sig'))
+    try:
+        list_data = [x for x in file_csv]
+        titles = list_data[0]
+        values = [x for x in list_data[1:] if x.count('') == 0 and len(x) == len(titles)]
+        return titles, values
+    except:
+        print('Пустой файл')
+        exit()
+
+
+def csv_filter(reader, list_naming):
+    vacList = []
+    for i in range(0, len(reader)):
+        for j in range(0, len(reader[i])):
+            reader[i][j] = clean_string(reader[i][j])
+    for value in reader:
+        vacationDictionary = {}
+        count = 0
+        for field in value:
+            vacationDictionary[list_naming[count]] = field
+            count += 1
+        vacList.append(vacationDictionary)
+    return vacList
+
+def formatter(row):
+    for vacation in row:
+        for key, value in vacation.items():
+            if vacation[key] == 'False':
+                vacation[key] = 'Нет'
+            elif vacation[key] == 'True':
+                vacation[key] = 'Да'
+            try:
+                vacation[key] = dictionary[value]
+            except:
+                pass
+
+        datetime = DT.datetime.strptime(vacation['published_at'][0:10].replace('-', ''), '%Y%m%d').date()
+        vacation['published_at'] = datetime.strftime('%d.%m.%Y')
+        if vacation['salary_gross'] == 'Да':
+            vacation['salary_gross'] = 'Без вычета налогов'
+        else:
+            vacation['salary_gross'] = 'С вычетом налогов'
+        vacation['salary_from'] = f"{'{0:,}'.format(int(float(vacation['salary_from']))).replace(',', ' ')} - " \
+                                 f"{'{0:,}'.format(int(float(vacation['salary_to']))).replace(',', ' ')} " \
+                                 f"({vacation['salary_currency']}) ({vacation['salary_gross']})"
+        del vacation['salary_currency'], vacation['salary_gross'], vacation['salary_to']
+    return row
+
+
+def print_vacancies(data_vacancies, lines, inputFields):
+    if len(data_vacancies) == 0:
+        print('Нет данных')
+        return
+    table = PrettyTable()
+    table.field_names = ['Название', 'Описание', 'Навыки', 'Опыт работы', 'Премиум-вакансия', 'Компания', 'Оклад', 'Название региона', 'Дата публикации вакансии']
+    table.max_width = 20
+    table.align = 'l'
+    table.hrules = 1
+    for item in formatter(data_vacancies):
+        column = []
+        for key, value in item.items():
+            if len(value) > 100:
+                column.append(value[:100] + '...')
+            else:
+                column.append(value)
+        table.add_row(column)
+    table.add_autoindex('№')
+    if inputFields != '':
+        fieldList = inputFields.split(', ')
+        fieldList.append('№')
+        if lines.isdigit() == True:
+            print(table.get_string(start = int(lines) - 1, fields = fieldList))
+        elif len(lines.split()) == 2:
+            borders = lines.split()
+            print(table.get_string(start = int(borders[0]) - 1, end = int(borders[1]) - 1, fields = fieldList))
+        elif lines == '':
+            print(table.get_string(fields = fieldList))
+    else:
+        if lines.isdigit() == True:
+            print(table.get_string(start=int(lines) - 1))
+        elif len(lines.split()) == 2:
+            borders = lines.split()
+            print(table.get_string(start=int(borders[0]) - 1, end=int(borders[1]) - 1))
+        elif lines == '':
+            print(table)
 
 currency_to_rub = {
     "AZN": 35.68,
@@ -147,9 +274,7 @@ class InputConnect:
         print('Уровень зарплат по городам (в порядке убывания):', salaryCities)
         print('Доля вакансий по городам (в порядке убывания):', vacanciesCities)
         return salaryLevelYear, vacYear, vacSalaryLevelYear, vacCountsYear, salaryCities, vacanciesCities
-pars = InputConnect()
-if pars.params is not None:
-    data = DataSet(pars.params[0])
+
 class Report:
     def __init__(self):
         self.columnsData = pars.printing_statistical_data(data.vacancies_objects, pars.params[1])
@@ -230,6 +355,34 @@ class Report:
                 textprops={'fontsize': 6})
         fig.tight_layout()
         fig.savefig('graph.png')
-rep = Report()
-rep.generate_excel(rep.columnsData)
-rep.generate_image(rep.columnsData)
+
+    @staticmethod
+    def generate_pdf(columnsData):
+        vacCities = columnsData[5]
+        vacCities = vacCities.items()
+        vacCities = {x[0]: str(f'{x[1] * 100:,.2f}%').replace('.', ',') for x in vacCities}
+        env = Environment(loader=FileSystemLoader('.'))
+        template = env.get_template("pdf_template.html")
+        header_year = ["Год", "Средняя зарплата", "Средняя зарплата - " + pars.params[1], "Количество вакансий",
+                       "Количество вакансий - " + pars.params[1]]
+        header_city = ["Город", "Уровень зарплат", "Город", "Доля вакансий"]
+        pdf_template = template.render({'profession': pars.params[1],
+                                        'salaryLevelYear': columnsData[0],
+                                        'vacYear': columnsData[1],
+                                        'vacSalaryLevelYear': columnsData[2],
+                                        'vacCountsYear': columnsData[3], 'salaryCities': columnsData[4],
+                                        'vacanciesCities': vacCities, 'header_year': header_year,
+                                        'header_city': header_city})
+        config = pdfkit.configuration(wkhtmltopdf=r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe')
+        pdfkit.from_string(pdf_template, 'report.pdf', configuration=config, options={"enable-local-file-access": ""})
+
+if input('Вакансии или Статистика: ') == 'Вакансии':
+    titles, values = csv_reader(input())
+    print_vacancies(csv_filter(values, titles), input(), input())
+else:
+    pars = InputConnect()
+    data = DataSet(pars.params[0])
+    rep = Report()
+    rep.generate_excel(rep.columnsData)
+    rep.generate_image(rep.columnsData)
+    rep.generate_pdf(rep.columnsData)
