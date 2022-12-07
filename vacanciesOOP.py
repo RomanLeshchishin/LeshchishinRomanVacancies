@@ -42,11 +42,25 @@ dictionary = {
 
 
 def clean_string(text):
+    """Убирает теги и заменяет символы
+    param text (str): строка из файла .csv
+    return:
+        String: возвращает отчищенную строку
+    """
     text = re.sub(r'<[^>]*>', '', text).replace('\r\n', ' ').strip()
     return re.sub(' +', ' ', text)
 
 
 def csv_reader(file_name):
+    """Открывает файл .csv и считывает заголовки и значения, при ошибке выходит из файла
+    param file_name (str): название файла .csv
+    return:
+        при считывании:
+            List[str]: заголовки
+            List[list[str]]: записи
+        при ошибке считывания:
+            String: пустой файл
+    """
     file_csv = csv.reader(open(file_name, encoding='utf_8_sig'))
     try:
         list_data = [x for x in file_csv]
@@ -59,6 +73,12 @@ def csv_reader(file_name):
 
 
 def csv_filter(reader, list_naming):
+    """Фильтрует все значения и составляет лист словарей, ключи: заголовки, значения: записи
+    param reader (List[list[str]]): записи
+    param list_naming (List[str]): заголовки
+    return:
+        List[dict]: лист словарей, ключи: заголовки, значения: записи сформированный из файла .csv
+    """
     vacList = []
     for i in range(0, len(reader)):
         for j in range(0, len(reader[i])):
