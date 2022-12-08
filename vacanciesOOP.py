@@ -42,7 +42,8 @@ dictionary = {
 
 
 def clean_string(text):
-    """Убирает теги и заменяет символы
+    """
+    Убирает теги и заменяет символы
     param text (str): строка из файла .csv
     return:
         String: возвращает отчищенную строку
@@ -52,8 +53,9 @@ def clean_string(text):
 
 
 def csv_reader(file_name):
-    """Открывает файл .csv и считывает заголовки и значения, при ошибке выходит из файла
-    param file_name (str): название файла .csv
+    """
+    Открывает файл .csv и считывает заголовки и записи, при ошибке выходит из файла
+    param file_name (str): название файла .csv для обработки
     return:
         при считывании:
             List[str]: заголовки
@@ -73,11 +75,12 @@ def csv_reader(file_name):
 
 
 def csv_filter(reader, list_naming):
-    """Фильтрует все значения и составляет лист словарей, ключи: заголовки, значения: записи
+    """
+    Фильтрует все значения и составляет лист словарей, ключи: заголовки, значения: записи
     param reader (List[list[str]]): записи
     param list_naming (List[str]): заголовки
     return:
-        List[dict]: лист словарей, ключи: заголовки, значения: записи сформированный из файла .csv
+        List[dict]: лист словарей с вакансиями, сформированный из файла .csv, ключи: заголовки, значения: записи
     """
     vacList = []
     for i in range(0, len(reader)):
@@ -93,6 +96,16 @@ def csv_filter(reader, list_naming):
     return vacList
 
 def formatter(row):
+    """
+    Форматирует информацию о вакансиях:
+        изменяет значения bool на str
+        преобразует значение даты в %d.%m.%Y
+        изменяет записи по ключу "salary_gross"
+        объединяет несколько записей про зарплату в один заголовок
+    param row (List[dict]): лист словарей с вакансиями
+    return:
+        List[dict]: отформатированный лист словарей с вакансиями
+    """
     for vacation in row:
         for key, value in vacation.items():
             if vacation[key] == 'False':
@@ -118,6 +131,18 @@ def formatter(row):
 
 
 def print_vacancies(data_vacancies, lines, inputFields):
+    """
+    Выводит в виде таблицы информацию о вакансиях, по опеределённым параметрам: lines, inputFields
+    param data_vacancies (List[dict]): лист словарей с вакансиями
+    param lines (str):
+        диапозон строк, которые нужно вывести
+        пример ввода: "20 30" - включая крайние значения, "20" - с 20 строки до конца, "" - все строки
+    param inputFields (str):
+        диапозон столбцов, которые нужно вывести
+        пример ввода: "Название, Опыт работы, Оклад", "" - вывод всех столбцов
+    return:
+        String: при отсутствии информации о вакансиях выводит пустую строку
+    """
     if len(data_vacancies) == 0:
         print('Нет данных')
         return
@@ -167,21 +192,65 @@ currency_to_rub = {
     "UZS": 0.0055,
 }
 class Salary:
+    """
+    Класс для представления зарплаты
+    Attributes:
+        salary_from (int): нижняя граница вилки оклада
+        salary_to (int): верхняя граница вилки оклада
+        salary_currency (str): валюта оклада
+    """
     def __init__(self, salary_from, salary_to, salary_currency):
+        """
+        Инициализирует объект Salary, вычисляет среднюю зарплату из вилки и переводит в рубли, при помощи словаря - currency_to_rub
+        param salary_from (str or int or float):  нижняя граница вилки оклада
+        param salary_to (str or int or float): верхняя граница вилки оклада
+        param salary_currency (str): валюта оклада
+        salary_ru (int): средняя зарплата в рублях
+        """
         self.salary_from = salary_from
         self.salary_to = salary_to
         self.salary_currency = salary_currency
         self.salary_ru = int((float(self.salary_from) + float(self.salary_to)) / 2) * currency_to_rub[self.salary_currency]
     def getSalaryRu(self):
+        """
+        Возвращает среднюю зарплату переведённую в рубли
+        return:
+            Integer: средняя зарплата в рублях
+        """
         return self.salary_ru
 class Vacancy:
+    """
+    Класс для представления вакансий
+    Attributes:
+        name (str): название
+        salary (Salary): объект класса Salary
+        area_name (str): название города
+        published_at (str): дата публикации
+    """
     def __init__(self, name, salary, area_name, published_at):
+        """
+        Инициализирует объект Vacancy
+        param name (str): название
+        param salary (Salary): объект класса Salary
+        param area_name (str): название города
+        param published_at (str): дата публикации
+        """
         self.name = name
         self.salary = salary
         self.area_name = area_name
         self.published_at = published_at
 class DataSet:
+    """
+       Класс для представления списка объектов класса Vacancy
+       Attributes:
+           file_name (str): название файла .csv для обработки
+       """
     def __init__(self, file_name):
+        """
+        Инициализирует объект DataSet, определяет список объектов Vacancy из file_name
+        param file_name (str): название файла .csv для обработки
+        vacancies_objects (List[Vacancy]): список объектов Vacancy
+        """
         self.file_name = file_name
         self.vacancies_objects = DataSet.csv_filter(file_name)
 
