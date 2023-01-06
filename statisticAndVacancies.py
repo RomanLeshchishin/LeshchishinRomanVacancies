@@ -244,7 +244,7 @@ class DataSet:
        Класс для представления списка объектов класса Vacancy
        Attributes:
            file_name (str): название файла .csv для обработки
-       """
+    """
     def __init__(self, file_name):
         """
         Инициализирует объект DataSet, определяет список объектов Vacancy из file_name
@@ -256,11 +256,27 @@ class DataSet:
 
     @staticmethod
     def clean_string(text):
+        """
+            Убирает теги и заменяет символы
+            param text (str): строка из файла .csv
+            return:
+                String: возвращает отчищенную строку
+        """
         text = re.sub(r'<[^>]*>', '', text).replace('\r\n', ' ').strip()
         return re.sub(' +', ' ', text)
 
     @staticmethod
     def csv_reader(fileName):
+        """
+            Открывает файл .csv и считывает заголовки и записи, при ошибке выходит из файла
+            param fileName (str): название файла .csv для обработки
+            return:
+                при считывании:
+                    List[str]: заголовки
+                    List[list[str]]: записи
+                при ошибке считывания:
+                    String: пустой файл
+        """
         file_csv = csv.reader(open(fileName, encoding='utf_8_sig'))
         try:
             list_data = [x for x in file_csv]
@@ -273,6 +289,12 @@ class DataSet:
 
     @staticmethod
     def csv_filter(file_name):
+        """
+            Фильтрует все значения и составляет лист вакансий
+            param file_name (str): название файла .csv для обработки
+            return:
+                List[Vacancy]: лист объектов Vacancy, сформированный из файла .csv
+        """
         titles, values = DataSet.csv_reader(file_name)
         vacList = []
         for value in values:
@@ -283,21 +305,46 @@ class DataSet:
             vacList.append(Vacancy(vacDic['name'], Salary(vacDic['salary_from'], vacDic['salary_to'], vacDic['salary_currency']), vacDic['area_name'], vacDic['published_at']))
         return vacList
 class InputConnect:
+    """
+           Класс для обработки и вывода данных из файла .csv
+    """
     def __init__(self):
+        """
+        params (tuple[str, str]): название файла .csv для обработки и название профессии, по которой выводится статистика
+        """
         self.params = InputConnect.get_params()
 
     @staticmethod
     def get_params():
+        """
+        Принимает и возвращает введённые данные о названии файла и профессии
+        return:
+            String: название файла .csv
+            String: название профессии
+        """
         filename = input('Введите название файла: ')
         vacancy = input('Введите название профессии: ')
         return filename, vacancy
 
     @staticmethod
     def convert_data(vacancy):
+        """
+        Переводит полную дату в год
+        param vacancy (Vacancy): информация об одной вакансии
+        return:
+            Integer: год, в котором была опубликована вакансия
+        """
         return int(DT.datetime.strptime(vacancy.published_at, '%Y-%m-%dT%H:%M:%S%z').strftime('%Y'))
 
     @staticmethod
     def create_years(vacList, years):
+        """
+        В цикле конвертирует дату из объектов Vacancy и создаёт отсортированный по возрастанию лист годов
+        param vacList (List[Vacancy]): лист объектов Vacancy, сформированный из файла .csv
+        param years (set): пустой объект set() для добавления годов
+        return:
+            List[Integer]: года, в которые были опубликованы вакансии
+        """
         for vac in vacList:
             years.add(InputConnect.convert_data(vac))
         years = sorted(list(years))
@@ -306,6 +353,13 @@ class InputConnect:
 
     @staticmethod
     def create_area_dic(vacList, areaDic):
+        """
+        Создание словаря из List[Vacancy], ключ: город, значение: средняя зарплата в рублях
+        param vacList (List[Vacancy]): лист объектов Vacancy, сформированный из файла .csv
+        param areaDic (dict): пустой словарь
+        return:
+            Dict[String, Integer]: словарь из List[Vacancy], ключ: город, значение: средняя зарплата в рублях
+        """
         for vac in vacList:
             if vac.area_name in areaDic:
                 areaDic[vac.area_name].append(vac.salary.getSalaryRu())
@@ -315,6 +369,13 @@ class InputConnect:
 
     @staticmethod
     def create_vacancies_dic(vacList, vacsDic):
+        """
+            Создание словаря из List[Vacancy], ключ: город, значение: количество вакансий
+            param vacList (List[Vacancy]): лист объектов Vacancy, сформированный из файла .csv
+            param vacsDic (dict): пустой словарь
+            return:
+                Dict[String, Integer]: словарь из List[Vacancy], ключ: город, значение: количество вакансий
+        """
         for vac in vacList:
             if vac.area_name in vacsDic:
                 vacsDic[vac.area_name] += 1
@@ -324,6 +385,15 @@ class InputConnect:
 
     @staticmethod
     def printing_statistical_data(vacList, vacancyName):
+        """
+            Обработка и вывод данных из файла .csv
+            param vacList (List[Vacancy]): лист объектов Vacancy, сформированный из файла .csv
+            param vacancyName (str): название профессии, по которой выводится статистика
+            return:
+                Tuple[dict, dict, dict, dict, dict, dict]: динамика уровня зарплат по годам, динамика количества вакансий по годам,
+                динамика уровня зарплат по годам для выбранной профессии, динамика количества вакансий по годам для выбранной профессии,
+                уровень зарплат по городам (в порядке убывания), доля вакансий по городам (в порядке убывания)
+        """
         years = set()
         years = InputConnect.create_years(vacList, years)
 
@@ -365,7 +435,13 @@ class InputConnect:
         return salaryLevelYear, vacYear, vacSalaryLevelYear, vacCountsYear, salaryCities, vacanciesCities
 
 class Report:
+    """ Класс для представления статистических данных по вакансиям в виде таблиц, графиков и файла .pdf """
     def __init__(self):
+        """
+        columnsData (tuple[dict, dict, dict, dict, dict, dict]): динамика уровня зарплат по годам, динамика количества вакансий по годам,
+                динамика уровня зарплат по годам для выбранной профессии, динамика количества вакансий по годам для выбранной профессии,
+                уровень зарплат по городам (в порядке убывания), доля вакансий по городам (в порядке убывания)
+        """
         self.columnsData = pars.printing_statistical_data(data.vacancies_objects, pars.params[1])
 
     @staticmethod
@@ -376,6 +452,9 @@ class Report:
 
     @staticmethod
     def generate_excel(columnsData):
+        """
+        Создание таблиц из статистических данных по вакансиям
+        """
         wb = openpyxl.Workbook()
         sheet1 = wb.active
         sheet1.title = "Статистика по годам"
@@ -413,6 +492,9 @@ class Report:
 
     @staticmethod
     def generate_image(columnsData):
+        """
+        Создание графиков из статистических данных по вакансиям
+        """
         x1 = np.arange(len(list(columnsData[0].keys())))
         width = 0.4
         fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
@@ -447,6 +529,9 @@ class Report:
 
     @staticmethod
     def generate_pdf(columnsData):
+        """
+        Создание файла .pdf из статистических данных по вакансиям
+        """
         vacCities = columnsData[5]
         vacCities = vacCities.items()
         vacCities = {x[0]: str(f'{x[1] * 100:,.2f}%').replace('.', ',') for x in vacCities}
