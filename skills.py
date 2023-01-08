@@ -61,13 +61,13 @@ class InputConnect:
         return years
     @staticmethod
     def printing_statistical_data(vacList):
-        vacNames = ['Frontend-программист', 'frontend', 'фронтенд', 'вёрстка', 'верстка', 'верста', 'front end', 'angular', 'html', 'css', 'react', 'vue']
+        vacancyNames = ['Frontend-программист', 'frontend', 'фронтенд', 'вёрстка', 'верстка', 'верста', 'front end', 'angular', 'html', 'css', 'react', 'vue']
         years = set()
         years = InputConnect.create_years(vacList, years)
         skillsYear = {year: [] for year in years}
         for vacancy in vacList:
             year = int(InputConnect.convert_data(vacancy))
-            if (vacancy.name in vacNames):
+            if (vacancy.name in vacancyNames):
                 for skill in vacancy.key_skills:
                     skillsYear[year].append(skill)
         print('Навыки по годам:', skillsYear)

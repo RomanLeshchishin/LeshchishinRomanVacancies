@@ -63,8 +63,8 @@ class InputConnect:
     @staticmethod
     def get_params():
         filename = input('Введите название файла: ')
-        vacancy = input('Введите названия профессии: ')
-        return filename, vacancy
+        vacancyNames = input('Введите названия профессии: ')
+        return filename, vacancyNames
     @staticmethod
     def convert_data(vacancy):
         return int(DT.datetime.strptime(vacancy.published_at, '%Y-%m-%dT%H:%M:%S%z').strftime('%Y'))

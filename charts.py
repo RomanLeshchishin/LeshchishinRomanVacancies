@@ -4,6 +4,8 @@ import re
 import openpyxl
 import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib.ticker as mtick
+import pandas as pd
 from openpyxl.styles import Font, Border, Side
 from openpyxl.styles.numbers import FORMAT_PERCENTAGE_00
 currency_to_rub = {
@@ -68,8 +70,8 @@ class InputConnect:
     @staticmethod
     def get_params():
         filename = input('Введите название файла: ')
-        vacancy = input('Введите название профессии: ')
-        return filename, vacancy
+        vacancyNames = input('Введите названия профессии: ')
+        return filename, vacancyNames
     @staticmethod
     def convert_data(vacancy):
         return int(DT.datetime.strptime(vacancy.published_at, '%Y-%m-%dT%H:%M:%S%z').strftime('%Y'))
@@ -99,7 +101,7 @@ class InputConnect:
         return vacsDic
 
     @staticmethod
-    def printing_statistical_data(vacList, vacancyName):
+    def printing_statistical_data(vacList, vacancyNames):
         years = set()
         years = InputConnect.create_years(vacList, years)
         salaryLevelYear = {year: [] for year in years}
@@ -110,9 +112,10 @@ class InputConnect:
             year = int(InputConnect.convert_data(vac))
             salaryLevelYear[year].append(vac.salary.getSalaryRu())
             vacYear[year] += 1
-            if vacancyName in vac.name:
-                vacSalaryLevelYear[year].append(vac.salary.getSalaryRu())
-                vacCountsYear[year] += 1
+            for vacancyName in vacancyNames.split(', '):
+                if vacancyName in vac.name:
+                    vacSalaryLevelYear[year].append(vac.salary.getSalaryRu())
+                    vacCountsYear[year] += 1
         salaryLevelYear = {key: int(sum(value)/ len(value)) if len(value) != 0 else 0 for key, value in salaryLevelYear.items()}
         vacSalaryLevelYear = {key: int(sum(value)/ len(value)) if len(value) != 0 else 0 for key, value in vacSalaryLevelYear.items()}
         areaNameDic = {}
@@ -184,35 +187,48 @@ class Report:
 
     @staticmethod
     def generate_image(columnsData):
-        x1 = np.arange(len(list(columnsData[0].keys())))
-        width = 0.4
-        fig, ax1 = plt.subplots()
-        ax1.bar(x1 - width, list(columnsData[0].values()), width, label='средняя з/п')
-        ax1.bar(x1, list(columnsData[2].values()), width, label='з/п ' + pars.params[1])
-        ax1.set_title('Уровень зарплат по годам', fontdict={'fontsize': 8})
-        ax1.grid(axis='y')
-        ax1.set_xticks(x1 - 0.2, list(columnsData[0].keys()), rotation=90)
-        ax1.legend(loc='upper left', prop={'size': 8})
+        # df = pd.DataFrame({'Количество вакансий': list(columnsData[1].values()),
+        #                    'Количество вакансий\n' + 'Frontend-программист': list(columnsData[3].values())},
+        #                   index=list(columnsData[0].keys()))
+        # ax = df.plot.bar(ylim=(0, 1500), width=0.97, figsize=(26, 10), fontsize=12)
+        # ax.grid(axis='y')
+        # for p in ax.patches:
+        #         ax.annotate(str(p.get_height()), (p.get_x() + p.get_width() / 2., (p.get_height() + 5) - p.get_height()), ha='center', va='center', size=10, fontweight='bold', xytext=(0, 15), textcoords='offset points')
+        # ax.figure.savefig('graphVacCountsYearTest.png')
+        # x1 = np.arange(len(list(columnsData[0].keys())))
+        # width = 0.4
+        fig, ax4 = plt.subplots()
+        # figsize=(8, 6)
+        # ax1.bar(x1 - width, list(columnsData[0].values()), width, label='средняя з/п')
+        # ax1.bar(x1, list(columnsData[2].values()), width, label='з/п ' + 'Frontend-программист')
+        # ax1.grid(axis='y')
+        # y_major_locator = mtick.MultipleLocator(10000)
+        # ax1.yaxis.set_major_locator(y_major_locator)
+        # ax1.set_xticks(x1 - 0.2, list(columnsData[0].keys()), rotation=90)
+        # ax1.legend(loc='upper left', prop={'size': 10})
         # x2 = np.arange(len(list(columnsData[0].keys())))
         # ax2.grid(axis='y')
+        # y_major_locator = mtick.MultipleLocator(100)
+        # plt.ylim(0, 1400)
+        # ax2.yaxis.set_major_locator(y_major_locator)
         # ax2.bar(x2 - width, list(columnsData[1].values()), width, label='Количество вакансий')
-        # ax2.bar(x2, list(columnsData[3].values()), width, label='Количество вакансий\n' + pars.params[1])
-        # ax2.set_title('Количество вакансий по годам', fontdict={'fontsize': 8})
+        # ax2.bar(x2, list(columnsData[3].values()), width, label='Количество вакансий\n' + 'Frontend-программист')
         # ax2.set_xticks(x2 - 0.2, list(columnsData[0].keys()), rotation=90)
-        # ax2.legend(loc='upper left', prop={'size': 8})
-        # ax3.set_title('Уровень зарплат по городам', fontdict={'fontsize': 8})
+        # ax2.legend(loc='upper left', prop={'size': 10})
         # ax3.barh(list([str(city).replace(' ', '\n').replace('-', '-\n') for city in
         #                 list(reversed(list(columnsData[4].keys())))]),
         #             list(reversed(list(columnsData[4].values()))), color='blue', height=0.5, align='center')
-        # ax3.yaxis.set_tick_params(labelsize=6)
-        # ax3.xaxis.set_tick_params(labelsize=8)
+        # ax3.yaxis.set_tick_params(labelsize=10)
+        # ax3.xaxis.set_tick_params(labelsize=10)
         # ax3.grid(axis='x')
-        # ax4.set_title('Доля вакансий по городам', fontdict={'fontsize': 8})
-        # other = 1 - sum([rate for rate in columnsData[5].values()])
-        # ax4.pie(list(columnsData[5].values()) + [other], labels=list(columnsData[5].keys()) + ['Другие'],
-        #         textprops={'fontsize': 6})
+        # x_major_locator = mtick.MultipleLocator(10000)
+        # ax3.xaxis.set_major_locator(x_major_locator)
+        colors = ('blue', 'purple', 'green', 'skyblue', 'orange', 'red', 'peru', 'olive', 'gold', 'yellowgreen', 'teal')
+        other = 1 - sum([rate for rate in columnsData[5].values()])
+        ax4.pie(list(columnsData[5].values()) + [other], labels=list(columnsData[5].keys()) + ['Другие'],
+                textprops={'fontsize': 10}, colors=colors)
         fig.tight_layout()
-        fig.savefig('graph.png')
+        fig.savefig('graphVacCities.png')
 
 rep = Report()
 #rep.generate_excel(rep.columnsData)

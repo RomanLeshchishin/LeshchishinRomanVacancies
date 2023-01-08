@@ -525,7 +525,7 @@ class Report:
         ax4.pie(list(columnsData[5].values()) + [other], labels=list(columnsData[5].keys()) + ['Другие'],
                 textprops={'fontsize': 6})
         fig.tight_layout()
-        fig.savefig('graph.png')
+        fig.savefig('graphCoderBigFile.png')
 
     @staticmethod
     def generate_pdf(columnsData):
