@@ -124,12 +124,19 @@ class InputConnect:
         vacanciesCounts = {k: val for k, val in vacanciesCounts.items() if val >= 0.01}
         vacanciesCities = dict(sorted(vacanciesCounts.items(), key=lambda item: item[1], reverse=True))
         vacanciesCities = dict(list(vacanciesCities.items())[:10])
-        print('Динамика уровня зарплат по годам:', salaryLevelYear)
-        print('Динамика количества вакансий по годам:', vacYear)
-        print('Динамика уровня зарплат по годам для выбранной профессии:', vacSalaryLevelYear)
-        print('Динамика количества вакансий по годам для выбранной профессии:', vacCountsYear)
-        print('Уровень зарплат по городам (в порядке убывания):', salaryCities)
-        print('Доля вакансий по городам (в порядке убывания):', vacanciesCities)
+        print('Динамика уровня зарплат по годам:', salaryLevelYear.keys())
+        print('Динамика уровня зарплат по годам:', salaryLevelYear.values())
+        print('Динамика количества вакансий по годам:', vacYear.values())
+        print('Динамика уровня зарплат по годам для выбранной профессии:', vacSalaryLevelYear.values())
+        print('Динамика количества вакансий по годам для выбранной профессии:', vacCountsYear.values())
+        print('Уровень зарплат по городам (в порядке убывания):', salaryCities.keys())
+        print('Уровень зарплат по городам (в порядке убывания):', salaryCities.values())
+        print('Доля вакансий по городам (в порядке убывания):', vacanciesCities.keys())
+        vacPercents = []
+        for value in vacanciesCities.values():
+            rate = (str(value * 100) + '%').replace('.', ',')
+            vacPercents.append(rate)
+        print('Доля вакансий по городам (в порядке убывания):', vacPercents)
         return salaryLevelYear, vacYear, vacSalaryLevelYear, vacCountsYear, salaryCities, vacanciesCities
 pars = InputConnect()
 if pars.params is not None:

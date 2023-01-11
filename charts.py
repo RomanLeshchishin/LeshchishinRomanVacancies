@@ -193,12 +193,14 @@ class Report:
         # ax = df.plot.bar(ylim=(0, 1500), width=0.97, figsize=(26, 10), fontsize=12)
         # ax.grid(axis='y')
         # for p in ax.patches:
-        #         ax.annotate(str(p.get_height()), (p.get_x() + p.get_width() / 2., (p.get_height() + 5) - p.get_height()), ha='center', va='center', size=10, fontweight='bold', xytext=(0, 15), textcoords='offset points')
+        #         ax.annotate(str(p.get_height()), (p.get_x() + p.get_width() / 2.,
+        #         (p.get_height() + 5) - p.get_height()), ha='center', va='center', size=10,
+        #         fontweight='bold', xytext=(0, 15), textcoords='offset points')
         # ax.figure.savefig('graphVacCountsYearTest.png')
         # x1 = np.arange(len(list(columnsData[0].keys())))
         # width = 0.4
         fig, ax4 = plt.subplots()
-        # figsize=(8, 6)
+        # figsize=(12, 6)
         # ax1.bar(x1 - width, list(columnsData[0].values()), width, label='средняя з/п')
         # ax1.bar(x1, list(columnsData[2].values()), width, label='з/п ' + 'Frontend-программист')
         # ax1.grid(axis='y')
