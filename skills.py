@@ -61,18 +61,28 @@ class InputConnect:
         return years
     @staticmethod
     def printing_statistical_data(vacList):
-        vacancyNames = ['Frontend-программист', 'frontend', 'фронтенд', 'вёрстка', 'верстка', 'верста', 'front end', 'angular', 'html', 'css', 'react', 'vue']
+        vacancyNames = ['Frontend-программист', 'frontend', 'фронтенд', 'вёрстка', 'верстка', 'верста', 'front end', 'angular', 'html', 'css', 'react', 'vue', 'Frontend']
         years = set()
         years = InputConnect.create_years(vacList, years)
         skillsYear = {year: [] for year in years}
         for vacancy in vacList:
             year = int(InputConnect.convert_data(vacancy))
-            if (vacancy.name in vacancyNames):
-                for skill in vacancy.key_skills:
-                    skillsYear[year].append(skill)
+            for vacName in vacancyNames:
+                if (vacName in vacancy.name):
+                    for skill in vacancy.key_skills:
+                        skillsYear[year].append(skill)
+                    break
         print('Навыки по годам:', skillsYear)
-        c = Counter(skillsYear[2018])
-        print(c.most_common(10))
+        for year in skillsYear.keys():
+            c = Counter(skillsYear[year])
+            print(year, c.most_common(10))
+        skillsAllYears = {}
+        for year, value in skillsYear.items():
+            for skill in skillsYear[year]:
+                if skill not in skillsAllYears.keys():
+                    skillsAllYears[skill] = 1
+                else:
+                    skillsAllYears[skill] += 1
         return skillsYear
 pars = InputConnect()
 if pars.param is not None:

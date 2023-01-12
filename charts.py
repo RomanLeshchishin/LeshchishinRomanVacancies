@@ -116,6 +116,7 @@ class InputConnect:
                 if vacancyName in vac.name:
                     vacSalaryLevelYear[year].append(vac.salary.getSalaryRu())
                     vacCountsYear[year] += 1
+                    break
         salaryLevelYear = {key: int(sum(value)/ len(value)) if len(value) != 0 else 0 for key, value in salaryLevelYear.items()}
         vacSalaryLevelYear = {key: int(sum(value)/ len(value)) if len(value) != 0 else 0 for key, value in vacSalaryLevelYear.items()}
         areaNameDic = {}
@@ -198,8 +199,8 @@ class Report:
         #         fontweight='bold', xytext=(0, 15), textcoords='offset points')
         # ax.figure.savefig('graphVacCountsYearTest.png')
         # x1 = np.arange(len(list(columnsData[0].keys())))
-        # width = 0.4
-        fig, ax3 = plt.subplots()
+        width = 0.4
+        fig, ax2 = plt.subplots()
         # figsize=(12, 6)
         # ax1.bar(x1 - width, list(columnsData[0].values()), width, label='средняя з/п')
         # ax1.bar(x1, list(columnsData[2].values()), width, label='з/п ' + 'Frontend-программист')
@@ -208,29 +209,29 @@ class Report:
         # ax1.yaxis.set_major_locator(y_major_locator)
         # ax1.set_xticks(x1 - 0.2, list(columnsData[0].keys()), rotation=90)
         # ax1.legend(loc='upper left', prop={'size': 10})
-        # x2 = np.arange(len(list(columnsData[0].keys())))
-        # ax2.grid(axis='y')
-        # y_major_locator = mtick.MultipleLocator(100)
-        # plt.ylim(0, 1400)
-        # ax2.yaxis.set_major_locator(y_major_locator)
-        # ax2.bar(x2 - width, list(columnsData[1].values()), width, label='Количество вакансий')
-        # ax2.bar(x2, list(columnsData[3].values()), width, label='Количество вакансий\n' + 'Frontend-программист')
-        # ax2.set_xticks(x2 - 0.2, list(columnsData[0].keys()), rotation=90)
-        # ax2.legend(loc='upper left', prop={'size': 10})
-        ax3.barh(list([str(city).replace(' ', '\n').replace('-', '-\n') for city in
-                        list(reversed(list(columnsData[4].keys())))]),
-                    list(reversed(list(columnsData[4].values()))), color='blue', height=0.5, align='center')
-        ax3.yaxis.set_tick_params(labelsize=10)
-        ax3.xaxis.set_tick_params(labelsize=10)
-        ax3.grid(axis='x')
-        x_major_locator = mtick.MultipleLocator(20000)
-        ax3.xaxis.set_major_locator(x_major_locator)
+        x2 = np.arange(len(list(columnsData[0].keys())))
+        ax2.grid(axis='y')
+        y_major_locator = mtick.MultipleLocator(100)
+        plt.ylim(0, 1400)
+        ax2.yaxis.set_major_locator(y_major_locator)
+        ax2.bar(x2 - width, list(columnsData[1].values()), width, label='Количество вакансий')
+        ax2.bar(x2, list(columnsData[3].values()), width, label='Количество вакансий\n' + 'Frontend-программист')
+        ax2.set_xticks(x2 - 0.2, list(columnsData[0].keys()), rotation=90)
+        ax2.legend(loc='upper left', prop={'size': 10})
+        # ax3.barh(list([str(city).replace(' ', '\n').replace('-', '-\n') for city in
+        #                 list(reversed(list(columnsData[4].keys())))]),
+        #             list(reversed(list(columnsData[4].values()))), color='blue', height=0.5, align='center')
+        # ax3.yaxis.set_tick_params(labelsize=10)
+        # ax3.xaxis.set_tick_params(labelsize=10)
+        # ax3.grid(axis='x')
+        # x_major_locator = mtick.MultipleLocator(20000)
+        # ax3.xaxis.set_major_locator(x_major_locator)
         # colors = ('blue', 'purple', 'green', 'skyblue', 'orange', 'red', 'peru', 'olive', 'gold', 'yellowgreen', 'teal')
         # other = 1 - sum([rate for rate in columnsData[5].values()])
         # ax4.pie(list(columnsData[5].values()) + [other], labels=list(columnsData[5].keys()) + ['Другие'],
         #         textprops={'fontsize': 10}, colors=colors)
         fig.tight_layout()
-        fig.savefig('graphSalaryCities.png')
+        fig.savefig('graphVacCountsYear.png')
 
 rep = Report()
 #rep.generate_excel(rep.columnsData)

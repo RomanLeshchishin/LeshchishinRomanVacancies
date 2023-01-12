@@ -109,6 +109,7 @@ class InputConnect:
                 if vacancyName in vac.name:
                     vacSalaryLevelYear[year].append(vac.salary.getSalaryRu())
                     vacCountsYear[year] += 1
+                    break
         salaryLevelYear = {key: int(sum(value)/ len(value)) if len(value) != 0 else 0 for key, value in salaryLevelYear.items()}
         vacSalaryLevelYear = {key: int(sum(value)/ len(value)) if len(value) != 0 else 0 for key, value in vacSalaryLevelYear.items()}
         areaNameDic = {}
