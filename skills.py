@@ -15,6 +15,7 @@ class DataSet:
     def clean_string(text):
         text = re.sub(r'<[^>]*>', '', text).replace('\r\n', ' ').strip()
         return re.sub(' +', ' ', text)
+
     @staticmethod
     def csv_reader(file_name):
         file_csv = csv.reader(open(file_name, encoding='utf_8_sig'))
@@ -61,7 +62,7 @@ class InputConnect:
         return years
     @staticmethod
     def printing_statistical_data(vacList):
-        vacancyNames = ['Frontend-программист', 'frontend', 'фронтенд', 'вёрстка', 'верстка', 'верста', 'front end', 'angular', 'html', 'css', 'react', 'vue', 'Frontend']
+        vacancyNames = ['Frontend-программист', 'frontend', 'фронтенд', 'вёрстка', 'верстка', 'верста', 'front end', 'angular', 'html', 'css', 'react', 'vue']
         years = set()
         years = InputConnect.create_years(vacList, years)
         skillsYear = {year: [] for year in years}
@@ -72,17 +73,45 @@ class InputConnect:
                     for skill in vacancy.key_skills:
                         skillsYear[year].append(skill)
                     break
-        print('Навыки по годам:', skillsYear)
-        for year in skillsYear.keys():
-            c = Counter(skillsYear[year])
-            print(year, c.most_common(10))
+        # print('Навыки по годам:', skillsYear)
+        # for year in skillsYear.keys():
+        #     c = Counter(skillsYear[year])
+        #     print(year, c.most_common(10))
         skillsAllYears = {}
-        for year, value in skillsYear.items():
-            for skill in skillsYear[year]:
-                if skill not in skillsAllYears.keys():
-                    skillsAllYears[skill] = 1
-                else:
+        for valueSkill in skillsYear.values():
+            for skill in valueSkill:
+                if skill in skillsAllYears.keys():
                     skillsAllYears[skill] += 1
+                else:
+                    skillsAllYears[skill] = 1
+        countAll = 0
+        for value in skillsAllYears.values():
+            countAll += int(value)
+        skillsTopYears = sorted(skillsAllYears.items(), key=lambda x: -x[1])
+        percentsForSkills = []
+        labelsForSkills = []
+        for i in range(0, 10):
+            percentsForSkills.append((skillsTopYears[i][1] / countAll) * 100)
+            labelsForSkills.append(skillsTopYears[i][0])
+        skillsLastYear = {}
+        for skill in skillsYear[2022]:
+            if skill in skillsLastYear.keys():
+                skillsLastYear[skill] += 1
+            else:
+                skillsLastYear[skill] = 1
+        countYear = sum(skillsLastYear.values())
+        skillsTopLastYear = sorted(skillsLastYear.items(), key=lambda x: -x[1])
+        percentsForSkillsLast = []
+        labelsForSkillsLast = []
+        for i in range(0, 10):
+            percentsForSkillsLast.append((skillsTopLastYear[i][1] / countYear) * 100)
+            labelsForSkillsLast.append(skillsTopLastYear[i][0])
+        print(percentsForSkills)
+        print(labelsForSkills)
+        print(skillsTopYears)
+        print(percentsForSkillsLast)
+        print(labelsForSkillsLast)
+        print(skillsTopLastYear)
         return skillsYear
 pars = InputConnect()
 if pars.param is not None:
